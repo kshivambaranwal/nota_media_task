@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Table CRUD Example</title>
+    <!-- Include jQuery and Bootstrap CSS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Data Table</h1>
+      <table class="table" id="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Date Time</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data rows will be added here -->
+        </tbody>
+      </table>
+      <button class="btn btn-primary" id="add-entry">Add New Entry</button>
+      <div id="error-message" style="color: red"></div>
+    </div>
+
+    <script>
+      // here i define demo data
+      let demodata = [
+        { id: 1, name: "Entry 1", datetime: "2023-11-04 10:00:00" },
+        { id: 2, name: "Entry 2", datetime: "2023-11-04 11:00:00" },
+        { id: 2, name: "Entry 3", datetime: "2023-11-04 11:00:00" },
+        { id: 2, name: "Entry 4", datetime: "2023-11-04 11:00:00" },
+        { id: 2, name: "Entry 5", datetime: "2023-11-04 11:00:00" },
+        { id: 2, name: "Entry 6", datetime: "2023-11-04 11:00:00" },
+      ];
+
+      // make a function for display demodata
+      function displaytable() {
+        const tableBody = $("#data-table tbody");
+        tableBody.empty();
+        demodata.forEach((entry) => {
+          tableBody.append(`
+            <tr data-id="${entry.id}">
+              <td>${entry.id}</td>
+              <td><span class="editable">${entry.name}</span></td>
+              <td>${entry.datetime}</td>
+              <td>
+                <button class="edit btn btn-primary">Edit</button>
+                <button class="delete btn btn-danger">Delete</button>
+                <button class="save btn btn-success" style="display: none;">Save</button>
+              </td>
+            </tr>
+          `);
+        });
+      }
+      //defaul i call displaytably() function here
+      displaytable();
+
+      // function for error message
+      function errormessage(message) {
+        const emessage = $("#error-message");
+        emessage.text(message);
+      }
+
+      // function to clear error messages
+      function hideerro() {
+        const messagehide = $("#error-message");
+        messagehide.text("");
+      }
+
+      // add concept here
+      $(document).on('click','#add-entry',function () {
+        const newEntryNameInput = $("#putnewname");
+        if (newEntryNameInput.length === 0) {
+          $("#add-entry").after(`
+            <input type="text" id="putnewname" class="form-control" placeholder="Name">
+            <button id="denddata" class="btn btn-primary">Send</button>
+          `);
+          $(document).on('click','#denddata',function () {
+            const name = $("#putnewname").val();
+            if (name.trim() === "") {
+              errormessage("Name Field Is required.");
+            } else {
+              hideerro();
+              
+              const newId = demodata.length + 1;
+              demodata.push({
+                id: newId,
+                name: name,
+                datetime: new Date().toLocaleString(),
+              });
+              displaytable();
+              $("#putnewname").remove();
+              $("#denddata").remove();
+            }
+          });
+        }
+      });
+
+      // edit concept here
+      $(document).on("click", ".edit", function () {
+        const row = $(this).closest("tr");
+        const nameElement = row.find(".editable");
+        const editButton = row.find(".edit");
+        const saveButton = row.find(".save");
+        const currentName = nameElement.text();
+        nameElement.html(`
+          <input type="text" class="edit-name form-control" value="${currentName}">
+        `);
+        editButton.hide();
+        saveButton.show();
+      });
+
+      // save data in demodata array
+      $(document).on("click", ".save", function () {
+        const row = $(this).closest("tr");
+        const id = row.data("id");
+        const nameElement = row.find(".editable");
+        const editButton = row.find(".edit");
+        const saveButton = row.find(".save");
+        const name = nameElement.find(".edit-name").val();
+       
+        demodata.forEach((entry) => {
+          if (entry.id === id) {
+            entry.name = name;
+          }
+        });
+        displaytable();
+      });
+
+      // delete recorde
+      $(document).on("click", ".delete", function () {
+        const row = $(this).closest("tr");
+        const id = row.data("id");
+       
+        demodata = demodata.filter((entry) => entry.id !== id);
+        displaytable();
+      });
+    </script>
+  </body>
+</html>
